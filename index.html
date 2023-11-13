@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+
+
+</head>
+
+<body>
+    <main>
+        <canvas id="mycanvas" width="24" height="24"></canvas>
+        <canvas id="filter" width="24" height="24"></canvas>
+        <form style="margin: 20px 0 0 42px">
+            上传本地图片:<input type="file" id="File" name="file" /><br />
+        </form>
+    </main>
+
+    <div class="all">
+        <!-- 24*24 -->
+        <div id="box" style="padding: 10px;display: flex;flex-direction: row;flex-wrap: wrap;">
+        </div>
+
+    </div>
+
+</body>
+
+
+
+<script type="text/javascript">
+    let x = 24//行
+    let y = 24//列个数
+    let px = 20//一个像素点大小
+    let pa = 2//间隔
+
+    var canvasBoxmy = document.getElementById('mycanvas');
+    var canvasBoxfl = document.getElementById('filter');
+    canvasBoxmy.style.width = x;
+    canvasBoxfl.style.height = y;
+
+    var c = document.getElementById('box');
+    c.style.width = (pa * 2 + px) * x + pa + 'px';
+    c.style.height = (pa * 2 + px) * y + pa + 'px';
+    console.log(20 * 24 * 10 + 10 + 'px');
+    for (let index = 0; index < 24 * 24; index++) {
+        var div_child = '<div id="box_child' + index + '"style="height:' + px + 'px;width:' + px + 'px;' +
+            'background-color:#000;padding:' + pa + 'px;background-clip:content-box;"></div>'
+        c.innerHTML += div_child;
+    }
+    for (let index = 0; index < 24 * 24; index++) {
+        var aa = document.getElementById('box_child' + index);
+        if (index % 3 == 0) {
+            aa.style.backgroundColor = '#d10e0e';
+        }
+    }
+</script>
+
+
+
+<script type="text/javascript">
+    let canvas = document.getElementById('mycanvas');// 获取canvas标签对象
+    let cxt = canvas.getContext("2d");// 设置在画布上绘图的环境
+    let filter = document.getElementById('filter'); // 获取img标签对象
+    let filter_cxt = filter.getContext("2d");
+    var imgArr = [];
+    var imgRGB = [];
+
+    window.onload = function () {
+        document.querySelector("#File").onchange = function () {
+            var Reader = new FileReader();
+            Reader.readAsDataURL(this.files[0]);
+            Reader.onload = function () {
+                let img = new Image();
+                img.src = Reader.result;
+                img.onload = function () {
+                    cxt.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    let imageData = cxt.getImageData(0, 0, canvas.width, canvas.height);   // 获取到的数据为一维数组，包含图像的RGBA四个通道数据
+                    console.log(imageData);
+                    let data = imageData.data;
+
+                    // 将获取到的图像数据去除A通道
+
+                    for (var i = 0; i < data.length; i += 4) {
+                        imgArr.push(data[i], data[i + 1], data[i + 2])
+                        imgRGB.push('rgb(' + data[i] + ',' + data[i + 1] + ',' + data[i + 2] + ')')
+                    }
+                    console.log(imgArr)
+                    console.log(imgRGB)
+
+                    for (let index = 0; index < 24 * 24; index++) {
+                        var aa = document.getElementById('box_child' + index);
+                        aa.style.backgroundColor = imgRGB[index];
+                        console.log(aa.style.backgroundColor = imgRGB[index]);
+                    }
+
+                }
+            }
+        }
+
+    }
+
+
+
+</script>
+
+</html>
